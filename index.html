@@ -129,7 +129,7 @@ body .welcome{background:linear-gradient(115deg,#202b21 0%,#29392b 65%,#394332 1
   <h2 id="authTitle">Votre collection, où que vous soyez.</h2><p id="authIntro">Connectez-vous pour accéder à votre espace personnel.</p>
   <div id="authFields">
    <div class="authfield hidden" id="pseudoField"><label for="authPseudo">Pseudo</label><input type="text" id="authPseudo" autocomplete="nickname" placeholder="Ton pseudo" maxlength="36"></div>
-   <div class="authfield"><label for="authEmail">Adresse e-mail</label><input type="email" id="authEmail" autocomplete="email" placeholder="vous@exemple.fr"></div>
+   <div class="authfield"><label for="authEmail">Adresse e-mail</label><input type="text" id="authEmail" inputmode="email" autocomplete="email" placeholder="vous@exemple.fr" spellcheck="false"></div>
    <div class="authfield" id="passwordField"><label for="authPassword">Mot de passe</label><input type="password" id="authPassword" autocomplete="current-password" placeholder="Au moins 8 caractères"></div>
    <div class="authfield hidden" id="confirmPasswordField"><label for="authPasswordConfirm" id="confirmPasswordLabel">Confirme ton mot de passe</label><input type="password" id="authPasswordConfirm" autocomplete="new-password" placeholder="Répète exactement le même mot de passe"></div>
   </div>
@@ -223,7 +223,7 @@ $('authSubmit').onclick=async()=>{
  }
  if(!email||!password){msg.textContent='Entre ton adresse e-mail et ton mot de passe.';return}
  if(authMode==='signup'&&pseudo.length<3){msg.textContent='Choisis un pseudo de 3 caractères minimum.';$('authPseudo').focus();return}
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.textContent='Entre une adresse e-mail valide.';return}
+ if(/[\s]/.test(email)){msg.textContent='Vérifie ton adresse e-mail : elle ne doit pas contenir d’espace au début, à la fin ou au milieu.';return}
  if(password.length<8){msg.textContent='Le mot de passe doit contenir au moins 8 caractères.';return}
  if(authMode==='signup'&&password!==$('authPasswordConfirm').value){msg.textContent='Les mots de passe sont différents. Vérifie les deux champs et recopie exactement le même mot de passe dans « Confirme ton mot de passe ». Rien n’a été créé.';$('authPasswordConfirm').focus();return}
  btn.disabled=true;msg.textContent=authMode==='signup'?'Création du compte…':'Connexion…';
@@ -243,7 +243,8 @@ $('authSubmit').onclick=async()=>{
   if(code===409||raw.includes('already exists')||raw.includes('user_already_exists'))msg.textContent='Un compte existe déjà avec cette adresse. Choisis « Se connecter » ou utilise « Mot de passe oublié ? ».';
   else if(code===400&&authMode==='signup')msg.textContent='Les informations ne sont pas acceptées. Vérifie ton adresse e-mail et choisis un mot de passe d’au moins 8 caractères.';
   else if(authMode==='signup'&&raw.includes('password'))msg.textContent='Le mot de passe doit contenir au moins 8 caractères.';
-  else if(authMode==='signup'&&raw.includes('email'))msg.textContent='Cette adresse e-mail semble invalide ou déjà utilisée.';
+  else if(authMode==='signup'&&(raw.includes('invalid email')||raw.includes('email address')||raw.includes('email is invalid')||raw.includes('invalid value')) )msg.textContent='Appwrite refuse le format de cette adresse e-mail. Vérifie qu’elle est écrite correctement et que son fournisseur autorise les inscriptions.';
+  else if(authMode==='signup'&&raw.includes('email'))msg.textContent='Appwrite a refusé l’adresse e-mail. Elle est peut-être déjà associée à un compte ou son format n’est pas accepté. Si tu as déjà un compte, utilise « Se connecter » ou « Mot de passe oublié ? ».';
   else if(authMode==='signup'&&msg.textContent.startsWith('Compte créé'))msg.textContent='Le compte a été créé, mais la connexion automatique a échoué. Essaie de te connecter avec la même adresse et le même mot de passe.';
   else msg.textContent=e?.message||'Connexion impossible. Vérifie les paramètres Appwrite et réessaie.';
  }finally{btn.disabled=false}
