@@ -128,6 +128,7 @@ body .welcome{background:linear-gradient(115deg,#202b21 0%,#29392b 65%,#394332 1
   <div class="authbrand"><div class="mark">◈</div><div><div class="brandname">Card<span>Scope</span></div><div class="brandtag">Votre collection Pokémon</div></div></div>
   <h2 id="authTitle">Votre collection, où que vous soyez.</h2><p id="authIntro">Connectez-vous pour accéder à votre espace personnel.</p>
   <div id="authFields">
+   <div class="authfield hidden" id="pseudoField"><label for="authPseudo">Pseudo</label><input type="text" id="authPseudo" autocomplete="nickname" placeholder="Ton pseudo" maxlength="36"></div>
    <div class="authfield"><label for="authEmail">Adresse e-mail</label><input type="email" id="authEmail" autocomplete="email" placeholder="vous@exemple.fr"></div>
    <div class="authfield" id="passwordField"><label for="authPassword">Mot de passe</label><input type="password" id="authPassword" autocomplete="current-password" placeholder="Au moins 8 caractères"></div>
   </div>
@@ -136,7 +137,7 @@ body .welcome{background:linear-gradient(115deg,#202b21 0%,#29392b 65%,#394332 1
   <div class="authswitch" id="forgotWrap"><button class="textbtn" id="forgotLink">Mot de passe oublié ?</button></div>
   <div class="authfield hidden" id="confirmPasswordField"><label for="authPasswordConfirm" id="confirmPasswordLabel">Confirme ton mot de passe</label><input type="password" id="authPasswordConfirm" autocomplete="new-password" placeholder="Répète le mot de passe"></div>
   <div class="authmsg" id="authMsg"></div>
-  <div class="authfine">Compte sécurisé par Appwrite. Votre mot de passe est géré par Appwrite ; CardScope ne le stocke pas. La synchronisation nécessite les autorisations de la table Collections.</div>
+  <div class="authfine">Ton pseudo sera affiché dans CardScope. Appwrite gère le mot de passe et l’adresse e-mail sert à récupérer le compte. Pour l’instant, la connexion se fait avec l’adresse e-mail : la connexion par pseudo nécessite un serveur sécurisé supplémentaire.</div>
  </div>
 </div>
 </div>
@@ -190,7 +191,7 @@ function updateAuth(){
  const intros={login:'Connectez-vous pour accéder à votre espace personnel.',signup:'Une adresse e-mail vous permettra de retrouver votre compte.',forgot:'Entre l’adresse e-mail de ton compte. Nous t’enverrons un lien pour choisir un nouveau mot de passe.',reset:'Choisis un nouveau mot de passe pour retrouver ton compte CardScope.'};
  $('authTitle').textContent=titles[authMode]||titles.login;$('authIntro').textContent=intros[authMode]||intros.login;
  $('authSubmit').textContent=authMode==='login'?'Se connecter':authMode==='signup'?'Créer mon compte':authMode==='forgot'?'Envoyer le lien':'Enregistrer le nouveau mot de passe';
- $('passwordField').classList.toggle('hidden',authMode==='forgot');$('confirmPasswordField').classList.toggle('hidden',authMode!=='reset'&&authMode!=='signup');$('confirmPasswordLabel').textContent=authMode==='reset'?'Confirme ton nouveau mot de passe':'Confirme ton mot de passe';$('authPasswordConfirm').placeholder=authMode==='reset'?'Répète le nouveau mot de passe':'Répète ton mot de passe';$('authPasswordConfirm').autocomplete='new-password';if(authMode!=='signup'&&authMode!=='reset')$('authPasswordConfirm').value='';
+ $('passwordField').classList.toggle('hidden',authMode==='forgot');$('pseudoField').classList.toggle('hidden',authMode!=='signup');$('confirmPasswordField').classList.toggle('hidden',authMode!=='reset'&&authMode!=='signup');$('confirmPasswordLabel').textContent=authMode==='reset'?'Confirme ton nouveau mot de passe':'Confirme ton mot de passe';$('authPasswordConfirm').placeholder=authMode==='reset'?'Répète le nouveau mot de passe':'Répète ton mot de passe';$('authPasswordConfirm').autocomplete='new-password';if(authMode!=='signup'&&authMode!=='reset')$('authPasswordConfirm').value='';
  $('authPassword').autocomplete=authMode==='reset'?'new-password':'current-password';$('authPassword').placeholder=authMode==='reset'?'Au moins 8 caractères':'Au moins 8 caractères';
  $('authSwitch').classList.toggle('hidden',authMode==='forgot'||authMode==='reset');$('forgotWrap').classList.toggle('hidden',authMode!=='login');
  if(authMode==='login'||authMode==='signup'){$('authSwitch').innerHTML=(authMode==='login'?'Nouveau sur CardScope ? ':'Déjà inscrit ? ')+`<button class="textbtn" id="authToggle">${authMode==='login'?'Créer un compte':'Se connecter'}</button>`;$('authToggle').onclick=()=>{authMode=authMode==='login'?'signup':'login';updateAuth();$('authMsg').textContent=''}}
@@ -201,7 +202,7 @@ function updateAuth(){
 
 $('openAuth').onclick=showAuth;$('settingsAuth').onclick=showAuth;$('userMenu').onclick=async()=>{if(currentUser){if(confirm('Se déconnecter de CardScope ?')){try{await appwriteAccount.deleteSession({sessionId:'current'})}catch(e){console.error(e)}setAccountUI(null);notify('Déconnecté. La collection locale reste sur cet appareil.')}}else showAuth()};if($('authClose'))$('authClose').onclick=()=>{};
 $('authSubmit').onclick=async()=>{
- const email=$('authEmail').value.trim(),password=$('authPassword').value,msg=$('authMsg'),btn=$('authSubmit');
+ const email=$('authEmail').value.trim(),password=$('authPassword').value,pseudo=$('authPseudo').value.trim(),msg=$('authMsg'),btn=$('authSubmit');
  if(!appwriteAccount){msg.textContent='La bibliothèque Appwrite ne s’est pas chargée. Recharge la page et réessaie.';return}
  if(authMode==='forgot'){
   if(!email){msg.textContent='Entre l’adresse e-mail de ton compte.';return}
@@ -221,19 +222,20 @@ $('authSubmit').onclick=async()=>{
   finally{btn.disabled=false}return;
  }
  if(!email||!password){msg.textContent='Entre ton adresse e-mail et ton mot de passe.';return}
+ if(authMode==='signup'&&pseudo.length<3){msg.textContent='Choisis un pseudo de 3 caractères minimum.';$('authPseudo').focus();return}
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.textContent='Entre une adresse e-mail valide.';return}
  if(password.length<8){msg.textContent='Le mot de passe doit contenir au moins 8 caractères.';return}
  if(authMode==='signup'&&password!==$('authPasswordConfirm').value){msg.textContent='Les deux mots de passe ne correspondent pas.';return}
  btn.disabled=true;msg.textContent=authMode==='signup'?'Création du compte…':'Connexion…';
  try{
   if(authMode==='signup'){
-   await appwriteAccount.create({userId:Appwrite.ID.unique(),email,password,name:email.split('@')[0]});
+   await appwriteAccount.create({userId:Appwrite.ID.unique(),email,password,name:pseudo});
    msg.textContent='Compte créé. Connexion en cours…';
   }
   await appwriteAccount.createEmailPasswordSession({email,password});
   const user=await appwriteAccount.get();setAccountUI(user);
   await loadCloudCollection();$('authveil').classList.add('hidden');
-  $('authPassword').value='';$('authPasswordConfirm').value='';
+  $('authPassword').value='';$('authPasswordConfirm').value='';$('authPseudo').value='';
   notify(authMode==='signup'?'Compte créé : bienvenue sur CardScope !':'Bienvenue sur CardScope !');
  }catch(e){
   console.error('Appwrite auth:',e);
