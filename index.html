@@ -116,51 +116,21 @@ body .welcome{background:linear-gradient(115deg,#202b21 0%,#29392b 65%,#394332 1
   <section class="page" id="page-settings">
     <div class="welcome"><div><div class="kicker">PRÉFÉRENCES</div><h1>Paramètres</h1><p>Gérez vos données et la connexion à votre compte.</p></div></div>
     <div class="contentgrid"><div class="panel"><div class="panelhead"><div><h2>Sauvegarde de la collection</h2><p>Protégez vos données</p></div></div><div class="settingrow"><div><b>Export my cards</b><p>Téléchargez une copie JSON de votre collection.</p></div><button class="btn small" id="exportBtn2">Exporter</button></div><div class="settingrow"><div><b>Import a backup</b><p>Restaurez une sauvegarde existante.</p></div><label class="btn small" for="importInput">Importer</label><input type="file" accept=".json,application/json" id="importInput" class="hidden"></div><div class="settingrow"><div><b>Delete my cards</b><p>Supprimez les données locales de ce navigateur.</p></div><button class="btn small danger" id="clearBtn2">Supprimer</button></div></div>
-      <div class="panel"><div class="panelhead"><div><h2>Compte et services</h2><p>État actuel de l’application</p></div></div><div class="settingrow"><div><b>Email sign-in</b><p>Écran de connexion uniquement ; une authentification réelle doit être configurée.</p></div><button class="btn small" id="settingsAuth">Configurer</button></div><div class="settingrow"><div><b>Card catalog</b><p>TCGdex · catalogue multilingue indépendant.</p></div><a class="btn small" href="https://tcgdex.dev/fr" target="_blank" rel="noreferrer">En savoir plus ↗</a></div><div class="settingrow"><div><b>Cloud sync</b><p>Indisponible tant que le compte n’est pas configuré.</p></div><span class="tag">Not configured</span></div></div></div>
+      <div class="panel"><div class="panelhead"><div><h2>Compte et services</h2><p>État actuel de l’application</p></div></div><div class="settingrow"><div><b>Mode sans compte</b><p>Aucune inscription ni connexion : vos cartes restent enregistrées dans ce navigateur.</p></div><button class="btn small" id="settingsAuth">Mode local actif</button></div><div class="settingrow"><div><b>Card catalog</b><p>TCGdex · catalogue multilingue indépendant.</p></div><a class="btn small" href="https://tcgdex.dev/fr" target="_blank" rel="noreferrer">En savoir plus ↗</a></div><div class="settingrow"><div><b>Stockage local</b><p>Les données restent sur cet appareil. Exportez régulièrement une sauvegarde JSON.</p></div><span class="tag">Actif</span></div></div></div>
     <div class="footer">CardScope is an independent project and is not affiliated with The Pokémon Company, Nintendo, or Game Freak.</div>
   </section>
   <div class="footer">CardScope · Made for collectors.</div>
 </main>
 <nav class="mobilebar"><button class="active" data-page="home"><span>⌂</span>Accueil</button><button data-page="collection"><span>▤</span>Collection</button><button data-page="search"><span>⌕</span>Explorer</button><button data-page="scan"><span>▧</span>Photo</button><button data-page="assistant"><span>✳</span>Aide</button></nav>
 <div class="toast" id="toast"></div>
-<div class="authveil" id="authveil">
- <div class="authcard">
-  <div class="authbrand"><div class="mark">◈</div><div><div class="brandname">Card<span>Scope</span></div><div class="brandtag">Votre collection Pokémon</div></div></div>
-  <h2 id="authTitle">Votre collection, où que vous soyez.</h2><p id="authIntro">Connectez-vous pour accéder à votre espace personnel.</p>
-  <div id="authFields">
-   <div class="authfield hidden" id="pseudoField"><label for="authPseudo">Pseudo</label><input type="text" id="authPseudo" autocomplete="nickname" placeholder="Ton pseudo" maxlength="36"></div>
-   <div class="authfield"><label for="authEmail">Adresse e-mail</label><input type="text" id="authEmail" inputmode="email" autocomplete="email" placeholder="vous@exemple.fr" spellcheck="false"></div>
-   <div class="authfield" id="passwordField"><label for="authPassword">Mot de passe</label><input type="password" id="authPassword" autocomplete="current-password" placeholder="Au moins 8 caractères"></div>
-   <div class="authfield hidden" id="confirmPasswordField"><label for="authPasswordConfirm" id="confirmPasswordLabel">Confirme ton mot de passe</label><input type="password" id="authPasswordConfirm" autocomplete="new-password" placeholder="Répète exactement le même mot de passe"></div>
-  </div>
-  <div class="authactions"><button class="btn primary" id="authSubmit">Se connecter</button></div>
-  <div class="authswitch" id="authSwitch">Nouveau sur CardScope ? <button class="textbtn" id="authToggle">Créer un compte</button></div>
-  <div class="authswitch" id="forgotWrap"><button class="textbtn" id="forgotLink">Mot de passe oublié ?</button></div>
-  <div class="authmsg" id="authMsg"></div>
-  <div class="authfine">Ton pseudo sera affiché dans CardScope. Appwrite gère le mot de passe et l’adresse e-mail sert à récupérer le compte. Pour l’instant, la connexion se fait avec l’adresse e-mail : la connexion par pseudo nécessite un serveur sécurisé supplémentaire.</div>
- </div>
-</div>
-</div>
 <button id="aiQuick" aria-label="Ouvrir l’assistant IA" title="Ouvrir l’assistant IA" style="position:fixed;right:20px;bottom:22px;z-index:20;border:1px solid #5c8f8a;background:#143b3b;color:#e7fff8;border-radius:999px;padding:13px 17px;box-shadow:0 8px 28px #0005;font:600 13px system-ui;cursor:pointer">✦ Assistant IA</button>
-<script src="https://cdn.jsdelivr.net/npm/appwrite@17.0.0"></script>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id),STORE='cardscope-premium-v1',LANGS={fr:'Français',en:'Anglais',ja:'日本語 · Japonais',de:'Allemand',es:'Espagnol',it:'Italien',pt:'Portugais (Brésil)','zh-tw':'中文繁體',id:'Bahasa Indonesia',th:'ไทย'};
 let collection=[];try{collection=JSON.parse(localStorage.getItem(STORE)||'[]')}catch(e){collection=[]}
-let photoUrl='',searchToken=0,scanToken=0,authMode='login';
-// Appwrite : seuls les identifiants publics du projet sont dans le navigateur. AUCUNE clé API secrète ici.
-const APPWRITE_ENDPOINT='https://fra.cloud.appwrite.io/v1';
-const APPWRITE_PROJECT='6ad35ea6000fb4bf00ae';
-const APPWRITE_DATABASE='6ad36065000ac8f0f46b';
-const APPWRITE_TABLE='6ad3609b0034d5b1ff92';
-let appwriteClient=null,appwriteAccount=null,appwriteTables=null,currentUser=null,syncTimer=null,syncBusy=false;
-try{if(window.Appwrite){appwriteClient=new Appwrite.Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT);appwriteAccount=new Appwrite.Account(appwriteClient);appwriteTables=new Appwrite.TablesDB(appwriteClient)}}catch(e){console.error('Appwrite SDK init:',e)}
-function setAccountUI(user){currentUser=user||null;const email=$('topEmail'),avatar=$('topAvatar');if(email)email.textContent=currentUser?(currentUser.name||currentUser.email):'Mon espace';if(avatar)avatar.textContent=currentUser?((currentUser.name||currentUser.email||'C').trim()[0]||'C').toUpperCase():'C';const box=document.querySelector('.accounttext b');if(box)box.textContent=currentUser?(currentUser.name||currentUser.email):'Collection locale';const sub=document.querySelector('.accounttext small');if(sub)sub.textContent=currentUser?'Synchronisation activée':'Non connecté'}
-function save(){try{localStorage.setItem(STORE,JSON.stringify(collection));renderAll();if(currentUser)queueCloudSave()}catch(e){notify('Stockage plein : exportez une sauvegarde.')}}function notify(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(notify.timer);notify.timer=setTimeout(()=>el.classList.remove('show'),2800)}
-function queueCloudSave(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>saveCloudCollection(),700)}
-async function saveCloudCollection(){if(!currentUser||!appwriteTables||syncBusy)return;const json=JSON.stringify(collection);if(json.length>9900){notify('Collection trop volumineuse pour la colonne cards (limite proche de 10 000 caractères).');return}syncBusy=true;try{const perms=[Appwrite.Permission.read(Appwrite.Role.user(currentUser.$id)),Appwrite.Permission.update(Appwrite.Role.user(currentUser.$id)),Appwrite.Permission.delete(Appwrite.Role.user(currentUser.$id))];await appwriteTables.upsertRow({databaseId:APPWRITE_DATABASE,tableId:APPWRITE_TABLE,rowId:currentUser.$id,data:{userId:currentUser.$id,cards:json},permissions:perms});}catch(e){console.error('Cloud save failed:',e);notify('Synchronisation impossible : vérifie les autorisations Appwrite et les colonnes userId/cards.')}finally{syncBusy=false}}
-async function loadCloudCollection(){if(!currentUser||!appwriteTables)return;try{const row=await appwriteTables.getRow({databaseId:APPWRITE_DATABASE,tableId:APPWRITE_TABLE,rowId:currentUser.$id});if(typeof row.cards==='string'){const parsed=JSON.parse(row.cards);if(Array.isArray(parsed)){collection=parsed;localStorage.setItem(STORE,JSON.stringify(collection));renderAll();notify('Collection récupérée depuis le cloud.')}}}catch(e){if(e.code===404){await saveCloudCollection();notify('Compte prêt : collection synchronisée.')}else{console.error('Cloud load failed:',e);notify('Compte connecté, mais lecture cloud impossible. Vérifie les permissions de la table.')}}}
-async function restoreSession(){if(!appwriteAccount){if(new URLSearchParams(location.search).get('reset')==='1'){$('authveil').classList.remove('hidden')}else showAuth();return}try{const user=await appwriteAccount.get();setAccountUI(user);await loadCloudCollection();if(new URLSearchParams(location.search).get('reset')!=='1')$('authveil').classList.add('hidden')}catch(e){setAccountUI(null);if(new URLSearchParams(location.search).get('reset')==='1'){$('authveil').classList.remove('hidden')}else showAuth()}}
+let photoUrl='',searchToken=0,scanToken=0,currentUser=null;
+function setAccountUI(user){currentUser=null;const email=$('topEmail'),avatar=$('topAvatar');if(email)email.textContent='Collection locale';if(avatar)avatar.textContent='C';const box=document.querySelector('.accounttext b');if(box)box.textContent='Collection locale';const sub=document.querySelector('.accounttext small');if(sub)sub.textContent='Enregistrée sur cet appareil'}
+function save(){try{localStorage.setItem(STORE,JSON.stringify(collection));renderAll()}catch(e){notify('Stockage de cet appareil presque plein : exportez une sauvegarde.')}}function notify(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(notify.timer);notify.timer=setTimeout(()=>el.classList.remove('show'),2800)}
 function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function money(v){return Number(v||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'})}
 function img(c){return c.image?(c.image.replace(/\/$/,'')+'/low.webp'):''}
 function cardHTML(c,mode){const src=img(c),sub=[c.setName||c.set?.name||c.set||'',c.localId?'N° '+c.localId:'',LANGS[c.langCode||c.lang]||''].filter(Boolean).join(' · ');const price=Number(c.marketPrice||c.price||0);const priceLine=price>0?`<div class="cardmeta" style="color:var(--accent);font-weight:700">Prix indicatif : ${money(price)} <span style="font-weight:400;color:var(--muted)">· données marché</span></div>`:`<div class="cardmeta">Prix indisponible</div>`;return `<article class="card"><div class="cardart">${src?`<img loading="lazy" src="${safe(src)}" alt="${safe(c.name)}" onerror="this.style.display='none'">`:'<span>▧</span>'}</div><div class="cardname" title="${safe(c.name)}">${safe(c.name)}</div><div class="cardmeta">${safe(sub||'Carte Pokémon')}</div>${mode==='collection'?`<div class="cardmeta">Qté ${c.qty||1} · ${money((c.price||0)*(c.qty||1))}</div><div class="cardactions"><button class="btn" data-edit="${safe(c.uid)}">Modifier</button><button class="btn danger" data-delete="${safe(c.uid)}">Retirer</button></div>`:`${priceLine}<div class="cardactions"><button class="btn primary" data-add="${safe(c.id||'')}" data-name="${safe(c.name)}" data-set="${safe(c.setName||c.set?.name||c.set||'')}" data-number="${safe(c.localId||'')}" data-image="${safe(c.image||'')}" data-lang="${safe(c.lang||c.langCode||'fr')}" data-price="${safe(price)}">＋ Ajouter</button></div>`}</article>`}
@@ -185,72 +155,10 @@ $('importInput').onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{l
 function reply(t){let q=t.toLowerCase(),total=collection.reduce((s,c)=>s+(+c.qty||1),0),value=collection.reduce((s,c)=>s+(+c.qty||1)*(+c.price||0),0),langs=[...new Set(collection.map(c=>LANGS[c.langCode]||c.langCode))];if(/bilan|stat|collection|combien/.test(q))return `Voici votre bilan :\n• ${total} exemplaire(s)\n• ${collection.length} référence(s)\n• Langues : ${langs.join(', ')||'aucune pour le moment'}\n• Valeur estimée : ${money(value)}\n\nLa valeur reprend uniquement les estimations que vous avez saisies.`;if(/langue/.test(q))return langs.length?'Langues présentes : '+langs.join(', '):'Votre collection est encore vide. Ajoutez une carte pour commencer.';if(/prix|valeur|estimer|cote/.test(q))return 'CardScope peut afficher un prix indicatif fourni par les données TCGdex lorsqu’il existe. Ce n’est pas une cotation en temps réel : les prix peuvent être absents, retardés ou varier selon la langue, la finition et l’état de la carte. Vérifiez toujours la version exacte.';if(/photo|identifier|scanner/.test(q))return 'Ouvrez « Add by photo », importez l’image, puis recherchez le nom visible. L’identification automatique par vision n’est pas encore connectée.';if(/conseil|amélior/.test(q))return 'Pour une collection bien organisée, notez la langue, le numéro et l’extension, indiquez la quantité réelle, puis exportez régulièrement une sauvegarde. Pour estimer une carte, comparez toujours la version exacte et son état.';return 'Je peux faire le bilan de votre collection, résumer les langues ou vous expliquer comment rechercher et ajouter une carte. Pour le moment, cet assistant utilise des réponses intégrées à l’application : il n’est pas encore relié à un véritable modèle d’IA externe.'}
 function say(t,user){let b=document.createElement('div');b.className='bubble'+(user?' user':'');b.textContent=t;$('chatbox').appendChild(b);$('chatbox').scrollTop=$('chatbox').scrollHeight}
 $('chatForm').onsubmit=e=>{e.preventDefault();let t=$('chatInput').value.trim();if(!t)return;say(t,true);$('chatInput').value='';setTimeout(()=>say(reply(t),false),100)};document.querySelectorAll('[data-prompt]').forEach(b=>b.onclick=()=>{say(b.dataset.prompt,true);setTimeout(()=>say(reply(b.dataset.prompt),false),100)});
-function showAuth(){authMode='login';updateAuth();$('authveil').classList.remove('hidden');$('authEmail').focus()}
-function updateAuth(){
- const titles={login:'Votre collection, où que vous soyez.',signup:'Créez votre espace.',forgot:'Réinitialiser le mot de passe',reset:'Choisir un nouveau mot de passe'};
- const intros={login:'Connectez-vous pour accéder à votre espace personnel.',signup:'Une adresse e-mail vous permettra de retrouver votre compte.',forgot:'Entre l’adresse e-mail de ton compte. Nous t’enverrons un lien pour choisir un nouveau mot de passe.',reset:'Choisis un nouveau mot de passe pour retrouver ton compte CardScope.'};
- $('authTitle').textContent=titles[authMode]||titles.login;$('authIntro').textContent=intros[authMode]||intros.login;
- $('authSubmit').textContent=authMode==='login'?'Se connecter':authMode==='signup'?'Créer mon compte':authMode==='forgot'?'Envoyer le lien':'Enregistrer le nouveau mot de passe';
- $('passwordField').classList.toggle('hidden',authMode==='forgot');$('pseudoField').classList.toggle('hidden',authMode!=='signup');$('confirmPasswordField').classList.toggle('hidden',authMode!=='reset'&&authMode!=='signup');$('confirmPasswordLabel').textContent=authMode==='reset'?'Confirme ton nouveau mot de passe':'Confirme ton mot de passe';$('authPasswordConfirm').placeholder=authMode==='reset'?'Répète exactement le nouveau mot de passe':'Répète exactement le même mot de passe';$('authPasswordConfirm').autocomplete='new-password';if(authMode!=='signup'&&authMode!=='reset')$('authPasswordConfirm').value='';
- $('authPassword').autocomplete=authMode==='reset'?'new-password':'current-password';$('authPassword').placeholder=authMode==='reset'?'Au moins 8 caractères':'Au moins 8 caractères';
- $('authSwitch').classList.toggle('hidden',authMode==='forgot'||authMode==='reset');$('forgotWrap').classList.toggle('hidden',authMode!=='login');
- if(authMode==='login'||authMode==='signup'){$('authSwitch').innerHTML=(authMode==='login'?'Nouveau sur CardScope ? ':'Déjà inscrit ? ')+`<button class="textbtn" id="authToggle">${authMode==='login'?'Créer un compte':'Se connecter'}</button>`;$('authToggle').onclick=()=>{authMode=authMode==='login'?'signup':'login';$('authPassword').value='';$('authPasswordConfirm').value='';$('authPseudo').value='';updateAuth();$('authMsg').textContent=''}}
- $('forgotLink').onclick=()=>{authMode='forgot';updateAuth();$('authMsg').textContent='';$('authEmail').focus()};
- if(authMode==='forgot'||authMode==='reset'){$('authSwitch').classList.remove('hidden');$('authSwitch').innerHTML='Tu te souviens de ton mot de passe ? <button class="textbtn" id="backToLogin">Retour à la connexion</button>';$('backToLogin').onclick=()=>{history.replaceState({},'',location.pathname);authMode='login';updateAuth();$('authMsg').textContent=''}}
- $('authMsg').textContent='';
-}
-
-$('openAuth').onclick=showAuth;$('settingsAuth').onclick=showAuth;$('userMenu').onclick=async()=>{if(currentUser){if(confirm('Se déconnecter de CardScope ?')){try{await appwriteAccount.deleteSession({sessionId:'current'})}catch(e){console.error(e)}setAccountUI(null);notify('Déconnecté. La collection locale reste sur cet appareil.')}}else showAuth()};if($('authClose'))$('authClose').onclick=()=>{};
-$('authSubmit').onclick=async()=>{
- const email=$('authEmail').value.trim(),password=$('authPassword').value,pseudo=$('authPseudo').value.trim(),msg=$('authMsg'),btn=$('authSubmit');
- if(!appwriteAccount){msg.textContent='La bibliothèque Appwrite ne s’est pas chargée. Recharge la page et réessaie.';return}
- if(authMode==='forgot'){
-  if(!email){msg.textContent='Entre l’adresse e-mail de ton compte.';return}
-  btn.disabled=true;msg.textContent='Envoi du lien en cours…';
-  try{const resetUrl=location.origin+location.pathname+'?reset=1';await appwriteAccount.createRecovery({email,url:resetUrl});msg.textContent='Si cette adresse correspond à un compte, un e-mail avec un lien de réinitialisation va être envoyé. Vérifie aussi les spams.'}
-  catch(e){console.error('Appwrite recovery:',e);msg.textContent='Impossible d’envoyer le lien. Vérifie la configuration des domaines et de l’e-mail dans Appwrite.'}
-  finally{btn.disabled=false}return;
- }
- if(authMode==='reset'){
-  const params=new URLSearchParams(location.search),userId=params.get('userId'),secret=params.get('secret'),confirm=$('authPasswordConfirm').value;
-  if(!userId||!secret){msg.textContent='Le lien de réinitialisation est incomplet ou invalide. Demande un nouveau lien.';return}
-  if(password.length<8){msg.textContent='Choisis un mot de passe d’au moins 8 caractères.';return}
-  if(password!==confirm){msg.textContent='Les deux mots de passe sont différents. Recopie exactement le même mot de passe dans les deux champs.';$('authPasswordConfirm').focus();return}
-  btn.disabled=true;msg.textContent='Modification du mot de passe…';
-  try{await appwriteAccount.updateRecovery({userId,secret,password,passwordAgain:confirm});history.replaceState({},'',location.pathname);authMode='login';updateAuth();msg.textContent='Mot de passe modifié ! Tu peux maintenant te connecter.';$('authPassword').value='';$('authPasswordConfirm').value=''}
-  catch(e){console.error('Appwrite reset:',e);msg.textContent='Le lien a peut-être expiré ou n’est pas valide. Demande un nouveau lien.'}
-  finally{btn.disabled=false}return;
- }
- if(!email||!password){msg.textContent='Entre ton adresse e-mail et ton mot de passe.';return}
- if(authMode==='signup'&&pseudo.length<3){msg.textContent='Choisis un pseudo de 3 caractères minimum.';$('authPseudo').focus();return}
- if(/[\s]/.test(email)){msg.textContent='Vérifie ton adresse e-mail : elle ne doit pas contenir d’espace au début, à la fin ou au milieu.';return}
- if(password.length<8){msg.textContent='Le mot de passe doit contenir au moins 8 caractères.';return}
- if(authMode==='signup'&&password!==$('authPasswordConfirm').value){msg.textContent='Les mots de passe sont différents. Vérifie les deux champs et recopie exactement le même mot de passe dans « Confirme ton mot de passe ». Rien n’a été créé.';$('authPasswordConfirm').focus();return}
- btn.disabled=true;msg.textContent=authMode==='signup'?'Création du compte…':'Connexion…';
- try{
-  if(authMode==='signup'){
-   await appwriteAccount.create({userId:Appwrite.ID.unique(),email,password,name:pseudo});
-   msg.textContent='Compte créé. Connexion en cours…';
-  }
-  await appwriteAccount.createEmailPasswordSession({email,password});
-  const user=await appwriteAccount.get();setAccountUI(user);
-  await loadCloudCollection();$('authveil').classList.add('hidden');
-  $('authPassword').value='';$('authPasswordConfirm').value='';$('authPseudo').value='';
-  notify(authMode==='signup'?'Compte créé : bienvenue sur CardScope !':'Bienvenue sur CardScope !');
- }catch(e){
-  console.error('Appwrite auth:',e);
-  const code=e?.code,raw=(e?.message||'').toLowerCase();
-  if(code===409||raw.includes('already exists')||raw.includes('user_already_exists'))msg.textContent='Un compte existe déjà avec cette adresse. Choisis « Se connecter » ou utilise « Mot de passe oublié ? ».';
-  else if(authMode==='signup'&&raw.includes('password'))msg.textContent='Appwrite refuse le mot de passe : vérifie sa longueur et réessaie.';
-  else if(authMode==='signup'&&(raw.includes('invalid email')||raw.includes('email address')||raw.includes('email is invalid')||raw.includes('invalid value')))msg.textContent='Appwrite indique que le format de l’adresse e-mail est invalide. Vérifie qu’il n’y a ni espace ni faute de frappe. Détail technique : '+(e?.message||'erreur 400');
-  else if(authMode==='signup'&&code===400)msg.textContent='Appwrite a refusé les informations. Détail technique : '+(e?.message||'erreur 400')+'. Vérifie le format de l’e-mail et les règles du projet Appwrite.';
-  else if(authMode==='signup'&&raw.includes('email'))msg.textContent='Appwrite a refusé l’adresse. Détail technique : '+(e?.message||'erreur inconnue')+'. Si un compte existe déjà, passe à « Se connecter » ou utilise « Mot de passe oublié ? ».';
-  else if(authMode==='signup'&&msg.textContent.startsWith('Compte créé'))msg.textContent='Le compte a été créé, mais la connexion automatique a échoué. Essaie de te connecter avec la même adresse et le même mot de passe.';
-  else msg.textContent=e?.message||'Connexion impossible. Vérifie les paramètres Appwrite et réessaie.';
- }finally{btn.disabled=false}
-};
+function showAuth(){notify('CardScope fonctionne sans compte : votre collection est enregistrée sur cet appareil. Utilisez « Exporter la sauvegarde » pour la conserver.')}
+$('openAuth').textContent='Local';$('openAuth').onclick=showAuth;$('settingsAuth').textContent='Mode local actif';$('settingsAuth').onclick=showAuth;$('userMenu').onclick=showAuth;
 async function check(){try{let r=await fetch('https://api.tcgdex.net/v2/fr/sets?pagination:itemsPerPage=1');$('apiStatus').textContent=r.ok?'Catalogue disponible':'Catalogue indisponible'}catch(e){$('apiStatus').textContent='Connexion à vérifier'}}
-window.addEventListener('resize',()=>{if($('page-home').classList.contains('active'))draw()});renderAll();check();if(new URLSearchParams(location.search).get('reset')==='1'){authMode='reset';updateAuth();$('authveil').classList.remove('hidden')}restoreSession();
+window.addEventListener('resize',()=>{if($('page-home').classList.contains('active'))draw()});renderAll();check();setAccountUI(null);
 })();
 </script>
 
