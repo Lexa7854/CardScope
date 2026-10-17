@@ -241,10 +241,10 @@ $('authSubmit').onclick=async()=>{
   console.error('Appwrite auth:',e);
   const code=e?.code,raw=(e?.message||'').toLowerCase();
   if(code===409||raw.includes('already exists')||raw.includes('user_already_exists'))msg.textContent='Un compte existe déjà avec cette adresse. Choisis « Se connecter » ou utilise « Mot de passe oublié ? ».';
-  else if(code===400&&authMode==='signup')msg.textContent='Les informations ne sont pas acceptées. Vérifie ton adresse e-mail et choisis un mot de passe d’au moins 8 caractères.';
-  else if(authMode==='signup'&&raw.includes('password'))msg.textContent='Le mot de passe doit contenir au moins 8 caractères.';
-  else if(authMode==='signup'&&(raw.includes('invalid email')||raw.includes('email address')||raw.includes('email is invalid')||raw.includes('invalid value')) )msg.textContent='Appwrite refuse le format de cette adresse e-mail. Vérifie qu’elle est écrite correctement et que son fournisseur autorise les inscriptions.';
-  else if(authMode==='signup'&&raw.includes('email'))msg.textContent='Appwrite a refusé l’adresse e-mail. Elle est peut-être déjà associée à un compte ou son format n’est pas accepté. Si tu as déjà un compte, utilise « Se connecter » ou « Mot de passe oublié ? ».';
+  else if(authMode==='signup'&&raw.includes('password'))msg.textContent='Appwrite refuse le mot de passe : vérifie sa longueur et réessaie.';
+  else if(authMode==='signup'&&(raw.includes('invalid email')||raw.includes('email address')||raw.includes('email is invalid')||raw.includes('invalid value')))msg.textContent='Appwrite indique que le format de l’adresse e-mail est invalide. Vérifie qu’il n’y a ni espace ni faute de frappe. Détail technique : '+(e?.message||'erreur 400');
+  else if(authMode==='signup'&&code===400)msg.textContent='Appwrite a refusé les informations. Détail technique : '+(e?.message||'erreur 400')+'. Vérifie le format de l’e-mail et les règles du projet Appwrite.';
+  else if(authMode==='signup'&&raw.includes('email'))msg.textContent='Appwrite a refusé l’adresse. Détail technique : '+(e?.message||'erreur inconnue')+'. Si un compte existe déjà, passe à « Se connecter » ou utilise « Mot de passe oublié ? ».';
   else if(authMode==='signup'&&msg.textContent.startsWith('Compte créé'))msg.textContent='Le compte a été créé, mais la connexion automatique a échoué. Essaie de te connecter avec la même adresse et le même mot de passe.';
   else msg.textContent=e?.message||'Connexion impossible. Vérifie les paramètres Appwrite et réessaie.';
  }finally{btn.disabled=false}
